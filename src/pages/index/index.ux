@@ -1,0 +1,164 @@
+<template>
+  <div class="watch" onswipe="onFetch">
+    <div class="center">
+      <text class="accent">{{ data.time }}</text>
+    </div>
+
+    <div class="row">
+      <text>CPU</text>
+      <text>{{ data.cpu }}%</text>
+    </div>
+
+    <div class="row">
+      <text>RAM</text>
+      <text>{{ (data.memUsed / 1024).toFixed(1) }}G / {{ (data.memTotal / 1024).toFixed(1) }}G</text>
+    </div>
+
+    <div class="row">
+      <text>Storage</text>
+      <text>{{ data.diskUsed }} / {{ data.diskTotal }}</text>
+    </div>
+
+    <div class="row">
+      <text>NET</text>
+      <text class="warn">▲ {{ data.net.tx }}M ▼ {{ data.net.rx }}M</text>
+    </div>
+
+    <div class="row">
+      <text>Uptime</text>
+      <text>{{ data.uptime }}</text>
+    </div>
+    <div class="row">
+      <text>Load</text>
+      <text>{{ data.load }}</text>
+    </div>
+
+    <div class="grid">
+      <div class="block">
+        <text class="val">{{ data.procs }}</text>
+        <text class="lab">proc</text>
+      </div>
+      <div class="block">
+        <text class="val">{{ data.temp }}°</text>
+        <text class="lab">temp</text>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="block">
+        <text class="val">{{ data.diskAvail }}</text>
+        <text class="lab">root</text>
+      </div>
+      <div class="block">
+        <text class="val">{{ data.homeFree }}</text>
+        <text class="lab">home</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import fetch from "@system.fetch"
+
+export default {
+  private: {
+    data: {
+      time: "--",
+      cpu: 0,
+      memUsed: 0,
+      memTotal: 0,
+      diskTotal: "-",
+      diskUsed: "-",
+      diskAvail: "-",
+      homeFree: "-",
+      uptime: "-",
+      load: "--",
+      net: {
+        iface: "--",
+        rx: 0,
+        tx: 0
+      },
+      procs: 0,
+      temp: 0
+    }
+  },
+  onInit() {
+    // this.onFetch();
+    setInterval(() => {
+      this.onFetch();
+    }, 5000);
+  },
+  onFetch() {
+    fetch.fetch({
+        url: `http://172.28.216.227:8000/stats`
+      })
+      .then((res) => {
+        const result = res.data
+        this.data = result.data;
+        
+        // console.log("Returned data:", JSON.stringify(result, null, 2))
+      })
+      .catch((error) => {
+        console.log(`Data request failed:`, error)
+      })
+  }
+}
+</script>
+
+<style>
+text {
+  font-size: 14px;
+  line-height: 16px;
+  letter-spacing: 0.4px;
+}
+
+.watch {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* align-items: center; */
+  padding-top: 30px;
+  background-color: #111;
+  color: #a6ffa6;
+}
+
+.center {
+  justify-content: center;
+  align-items: center;
+}
+.row {
+  display: flex;
+  flex-direction: row;
+  padding: 16px;
+  width: 100%;
+  justify-content: space-between;
+}
+.warn {
+  color: #ffb800;
+}
+.accent {
+  color: #00f2ff;
+}
+
+.grid {
+  display: flex;
+  /* flex-direction: column; */
+  gap: 6px;
+}
+.block {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: #1a1a1a;
+  border-radius: 4px;
+  padding: 4px 0;
+  margin: 4px;
+}
+.val {
+  font-size: 13px;
+}
+.lab {
+  opacity: 0.6;
+}
+</style>
