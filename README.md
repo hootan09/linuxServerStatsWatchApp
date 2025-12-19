@@ -1,7 +1,7 @@
 ## Mi Watch/Band Linux Status App
 
 ### Server
-```
+```sh
 cd server
 python -m venv env
 source env/bin/activate
